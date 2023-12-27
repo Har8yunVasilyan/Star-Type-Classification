@@ -1,0 +1,161 @@
+X = standardized_df.iloc[:, :-1]
+y = standardized_df.iloc[:, -1]
+y = y.astype('int')  # Changing data type for y
+
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, random_state=0)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=0)
+
+
+X_test.head()
+
+X_train.shape, y_train.shape
+
+X_test.shape, y_test.shape
+
+X.head()
+
+y.head()
+
+y.sample(5)
+
+k = 5
+neighbours = KNeighborsClassifier(n_neighbors=k)
+
+standardized_df
+
+neighbours.fit(X, y)
+
+neighbours.score(X, y)
+
+k = 7
+neighbours_k7 = KNeighborsClassifier(n_neighbors=k)
+
+neighbours_k7.fit(X, y)
+
+neighbours.score(X, y)
+
+y_pred = neighbours.predict(X)
+
+y_pred
+
+X.head(1)
+
+X.iloc[0:1]
+
+y_pred_obs_number_one = neighbours.predict(X.iloc[0:1])
+y_pred_obs_number_one
+
+y[0:1]
+
+y_pred = neighbours_k7.predict(X)
+
+y_pred
+
+X.head(1)
+
+X.iloc[0:1]
+
+y_pred_obs_number_one_k7 = neighbours_k7.predict(X.iloc[0:1])
+y_pred_obs_number_one_k7
+
+y[0:1]
+
+round(accuracy_score(y, y_pred) * 100, 4)
+
+y[:10], y_pred[:10]
+
+y_df = pd.DataFrame({'y': y, 'y_pred': y_pred},
+                    columns=['y', 'y_pred'])
+
+y_df["pred"] = y_df.y == y_df.y_pred
+
+y_df.head()
+
+y_df[y_df.pred == False]
+
+pd.crosstab(y, y_pred, rownames=['True'], colnames=['Predicted'], margins=True)
+
+neighbors = np.arange(2, 20)
+accuracy = np.empty(len(neighbors))
+
+for i, k in enumerate(neighbors):
+
+    knn = KNeighborsClassifier(n_neighbors=k)
+
+    knn.fit(X, y)
+
+    accuracy[i] = knn.score(X, y)
+
+accuracy
+
+plt.title('k-NN: Using different Number of Neighbors')
+plt.plot(neighbors, accuracy, label='Accuracy')
+plt.xticks(range(2,20))
+plt.legend()
+plt.xlabel('Number of Neighbors')
+plt.ylabel('Accuracy')
+
+best_index = np.argmax(accuracy)
+best_k = neighbors[best_index]
+
+knn = KNeighborsClassifier(n_neighbors=best_k)
+knn.fit(X_train, y_train)
+
+def evaluate_model_performance(model, X_test, y_test):
+    y_pred = model.predict(X_test)
+
+    accuracy = accuracy_score(y_test, y_pred) * 100
+    precision = precision_score(y_test, y_pred, average='macro') * 100
+    recall = recall_score(y_test, y_pred, average='macro') * 100
+
+    return accuracy, precision, recall
+
+accuracy, precision, recall = evaluate_model_performance(knn, X_test, y_test)
+print("Accuracy:", accuracy)
+print("Precision:", precision)
+print("Recall:", recall)
+
+cm = confusion_matrix(y_test, y_pred)
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.xlabel('Predicted')
+plt.ylabel('True')
+plt.title('Confusion Matrix')
+plt.show()
+
+gnb_classifier = GaussianNB()
+
+fit_gnb_classifier = gnb_classifier.fit(X_train, y_train)
+
+y_pred = fit_gnb_classifier.predict(X_test)
+y_pred
+
+gnb_classifier.score(X_train, y_train)
+
+y_pred == y_test
+
+y_df = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred},
+                    columns=['y_test', 'y_pred'])
+y_df["pred"] = y_df.y_test == y_df.y_pred
+y_df.head()
+
+def evaluate_classifier_performance(classifier, X_test, y_test):
+   
+    y_pred = classifier.predict(X_test)
+    
+    accuracy = accuracy_score(y_test, y_pred) * 100
+    precision = precision_score(y_test, y_pred, average='macro') * 100
+    recall = recall_score(y_test, y_pred, average='macro') * 100
+
+    return accuracy, precision, recall
+
+accuracy, precision, recall = evaluate_classifier_performance(fit_gnb_classifier, X_test, y_test)
+print("Accuracy:", accuracy)
+print("Precision:", precision)
+print("Recall:", recall)
+
+cm = confusion_matrix(y_test, y_pred)
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.xlabel('Predicted')
+plt.ylabel('True')
+plt.title('Confusion Matrix')
+plt.show()
